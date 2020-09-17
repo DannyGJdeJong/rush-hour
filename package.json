@@ -1,0 +1,24 @@
+{
+  "name": "rush-hour",
+  "version": "1.0.0",
+  "description": "rush-hour implementation for a coding project",
+  "repository": "git@github.com:DannyGJdeJong/rush-hour.git",
+  "author": "DannyGJdeJong <dannygjdejong@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/styled-components": "^5.1.3",
+    "gatsby": "^2.24.62",
+    "gatsby-plugin-layout": "^1.3.11",
+    "gatsby-plugin-s3": "^0.3.5",
+    "gatsby-plugin-styled-components": "^3.3.11",
+    "gatsby-plugin-ts-config": "^1.0.0",
+    "gatsby-plugin-typescript": "^2.4.20",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "styled-components": "^5.2.0",
+    "typescript": "^4.0.2"
+  },
+  "dependencies": {
+    "typeface-inter": "^3.15.0"
+  }
+}
