@@ -1,6 +1,8 @@
 import React, { FunctionComponent } from 'react';
 import styled from 'styled-components';
+
 import GridSquare from '../GridSquare';
+import Swipeable from '../Swipeable';
 
 type VehicleProps = {
   id: string
@@ -11,6 +13,7 @@ type VehicleProps = {
   selected: boolean
   color: string
   onClickCallback: (event: React.MouseEvent, id: string) => void
+  moveVehicle: (id: string, direction: string) => void
 };
 
 type StyledGridSquareProps = {
@@ -32,11 +35,18 @@ const StyledGridSquare = styled(GridSquare)<StyledGridSquareProps>`
   }
 `;
 
-const Vehicle: FunctionComponent<VehicleProps> = ({id, x, y, color, orientation, length, selected, onClickCallback}) => {
+const Vehicle: FunctionComponent<VehicleProps> = ({id, x, y, color, orientation, length, selected, onClickCallback, moveVehicle}) => {
   const onClick = (event: React.MouseEvent) => onClickCallback(event, id);
 
+  const onSwipe = (direction: string) => {
+    console.log(id)
+    console.log(direction)
+    moveVehicle(id, direction);
+  }
+
   return (
-    <StyledGridSquare x={x} y={y} orientation={orientation} length={length} color={color} onClick={onClick} className={selected ? 'selected' : ''}>
+    <StyledGridSquare x={x} y={y} orientation={orientation} length={length} color={color} onMouseDown={onClick} className={selected ? 'selected' : ''}>
+      <Swipeable swipeCallback={onSwipe}></Swipeable>
     </StyledGridSquare>
   );
 };

@@ -10,6 +10,12 @@ const GlobalStyle = createGlobalStyle`
 
   body {
     background-color: #F7F7F7;
+    /*
+      Disable pull down to refresh and drag from side to go back so touch support works
+      This is definitely not the ideal solution, but using event.preventDefault() did not work
+    */
+    overscroll-behavior-y: contain;
+    overscroll-behavior-x: contain;
   }
 
   p, h1 {

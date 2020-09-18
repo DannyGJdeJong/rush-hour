@@ -94,42 +94,36 @@ const GameBoard: FunctionComponent<GameBoardProps> = ({ width, height, initialVe
     setSelectedVehicleId(id);
   };
 
-  const handleKeyDown = (event: KeyboardEvent) => {
-    // Ignore repeat keypresses
-    if (event.repeat) { return }
+  const moveVehicle = (id: string, direction: 'up' | 'down' | 'left' | 'right') => {
+     // Create a temporary new vehicle
+     let newVehicle: VehicleData = {...vehicles[id]};
 
-    // Ignore keypress when no vehicle is selected
-    if (selectedVehicleId == null) { return }
-
-    // Create a temporary new vehicle
-    let newVehicle: VehicleData = {...vehicles[selectedVehicleId]};
-
-    // Adjust the new vehicle's position
-    switch(event.code) {
-      case 'ArrowUp': case 'KeyW':
-        if (newVehicle.orientation === 'vertical') {
-          newVehicle.y -= 1;
-        }
-        break;
-      case 'ArrowLeft': case 'KeyA':
-        if (newVehicle.orientation === 'horizontal') {
-          newVehicle.x -= 1;
-        }
-        break;
-      case 'ArrowDown': case 'KeyS':
-        if (newVehicle.orientation === 'vertical') {
-          newVehicle.y += 1;
-        }
-        break;
-      case 'ArrowRight': case 'KeyD':
-        if (newVehicle.orientation === 'horizontal') {
-          newVehicle.x += 1;
-        }
-        break;
-    }
+     // Adjust the new vehicle's position
+     switch(direction) {
+       case 'up':
+         if (newVehicle.orientation === 'vertical') {
+           newVehicle.y -= 1;
+         }
+         break;
+       case 'left':
+         if (newVehicle.orientation === 'horizontal') {
+           newVehicle.x -= 1;
+         }
+         break;
+       case 'down':
+         if (newVehicle.orientation === 'vertical') {
+           newVehicle.y += 1;
+         }
+         break;
+       case 'right':
+         if (newVehicle.orientation === 'horizontal') {
+           newVehicle.x += 1;
+         }
+         break;
+     }
 
     // If nothing changed, don't update vehicles
-    if (newVehicle.x == vehicles[selectedVehicleId].x && newVehicle.y == vehicles[selectedVehicleId].y) { return }
+    if (newVehicle.x == vehicles[id].x && newVehicle.y == vehicles[id].y) { return }
 
     let vehiclePositionValid = true;
 
@@ -155,7 +149,7 @@ const GameBoard: FunctionComponent<GameBoardProps> = ({ width, height, initialVe
       }
 
       // Check if spot is available (either null or itself)
-      if (!(squares[_y][_x] == null || squares[_y][_x] === selectedVehicleId)) {
+      if (!(squares[_y][_x] == null || squares[_y][_x] === id)) {
         vehiclePositionValid = false;
         return;
       }
@@ -167,7 +161,7 @@ const GameBoard: FunctionComponent<GameBoardProps> = ({ width, height, initialVe
     // If the code hasn't returned by now the vehicle must be placeable
     setVehicles((vehicles) => {
       let newVehicles = {...vehicles};
-      newVehicles[selectedVehicleId] = newVehicle;
+      newVehicles[id] = newVehicle;
 
       return newVehicles;
     });
@@ -176,6 +170,30 @@ const GameBoard: FunctionComponent<GameBoardProps> = ({ width, height, initialVe
     setMoveCount((moveCount) => {
       return moveCount + 1;
     });
+  }
+
+  const handleKeyDown = (event: KeyboardEvent) => {
+    // Ignore repeat keypresses
+    if (event.repeat) { return }
+
+    // Ignore keypress when no vehicle is selected
+    if (selectedVehicleId == null) { return }
+
+    // Adjust the new vehicle's position
+    switch(event.code) {
+      case 'ArrowUp': case 'KeyW':
+        moveVehicle(selectedVehicleId, 'up');
+        break;
+      case 'ArrowLeft': case 'KeyA':
+        moveVehicle(selectedVehicleId, 'left');
+        break;
+      case 'ArrowDown': case 'KeyS':
+        moveVehicle(selectedVehicleId, 'down');
+        break;
+      case 'ArrowRight': case 'KeyD':
+        moveVehicle(selectedVehicleId, 'right');
+        break;
+    }
   };
 
   // Check if the red car is in a winning position
@@ -201,7 +219,7 @@ const GameBoard: FunctionComponent<GameBoardProps> = ({ width, height, initialVe
         <StyledGrid width={width} height={height}>
           {
             Object.keys(vehicles).map(id =>
-              <Vehicle key={id} id={id} {...vehicles[id]} selected={id == selectedVehicleId} onClickCallback={handleVehicleClick}/>
+              <Vehicle key={id} id={id} {...vehicles[id]} selected={id == selectedVehicleId} onClickCallback={handleVehicleClick} moveVehicle={moveVehicle}/>
             )
           }
         </StyledGrid>
