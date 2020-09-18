@@ -3,13 +3,14 @@ import styled from 'styled-components';
 import GridSquare from '../GridSquare';
 
 type VehicleProps = {
+  id: string
   x: number
   y: number
   orientation: 'vertical' | 'horizontal'
   length: number
   selected: boolean
   color: string
-  onClickCallback: (event: React.MouseEvent, x: number, y: number) => void
+  onClickCallback: (event: React.MouseEvent, id: string) => void
 };
 
 type StyledGridSquareProps = {
@@ -31,8 +32,8 @@ const StyledGridSquare = styled(GridSquare)<StyledGridSquareProps>`
   }
 `;
 
-const Vehicle: FunctionComponent<VehicleProps> = ({x, y, color, orientation, length, selected, onClickCallback}) => {
-  const onClick = (event: React.MouseEvent) => onClickCallback(event, x, y);
+const Vehicle: FunctionComponent<VehicleProps> = ({id, x, y, color, orientation, length, selected, onClickCallback}) => {
+  const onClick = (event: React.MouseEvent) => onClickCallback(event, id);
 
   return (
     <StyledGridSquare x={x} y={y} orientation={orientation} length={length} color={color} onClick={onClick} className={selected ? 'selected' : ''}>
