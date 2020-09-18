@@ -1,12 +1,18 @@
+// Import libraries
 import React, { FunctionComponent, useState, useEffect } from 'react';
 import styled from 'styled-components';
+
+// Import components
+import SquareContainer from '../SquareContainer';
 import Vehicle from '../Vehicle';
+import Modal from '../Modal';
 import Grid from '../Grid';
 
 type GameBoardProps = {
   width: number
   height: number
   initialVehicles: VehicleData[]
+  setMoveCount: React.Dispatch<React.SetStateAction<number>>
 }
 
 type VehicleData = {
@@ -20,15 +26,14 @@ type VehicleData = {
 type SquareData = string | null
 
 const StyledGrid = styled(Grid)`
-  width: 50vw;
-  height: 50vw;
-  margin: auto;
+  width: 100%;
+  height: 100%;
 `;
 
-const GameBoard: FunctionComponent<GameBoardProps> = ({ width, height, initialVehicles }) => {
+const GameBoard: FunctionComponent<GameBoardProps> = ({ width, height, initialVehicles, setMoveCount }) => {
   const [squares, setSquares] = useState<SquareData[][]>(Array(height).fill(null).map(() => Array(width).fill(null)));
   const [vehicles, setVehicles] = useState<{[id: string] : VehicleData}>(Object.assign({}, ...initialVehicles.map((vehicle) => ({[vehicle.x + ',' + vehicle.y]: vehicle}))));
-
+  const [won, setWon] = useState<boolean>(false);
 
   // Update squares whenever a vehicle changes
   useEffect(() => {
@@ -166,16 +171,45 @@ const GameBoard: FunctionComponent<GameBoardProps> = ({ width, height, initialVe
 
       return newVehicles;
     });
+
+    // Update moveCount
+    setMoveCount((moveCount) => {
+      return moveCount + 1;
+    });
   };
 
+  // Check if the red car is in a winning position
+  useEffect(() => {
+    // Find the objective vehicle, marked by its color, red
+    // This assumes there's just a single red car at all times
+    let redVehicle = Object.values(vehicles).find(vehicle => vehicle.color === 'red');
+
+    // Determine whether the red car is in a winning position
+    // This assumes the winning position is either on the right or at the bottom of the grid
+    // The latter should never occur in a normal game of rush-hour, but it's possible to still win if the car is somehow rotated
+    if ((redVehicle.orientation === 'horizontal' && redVehicle.x == width - redVehicle.length) ||
+        (redVehicle.orientation === 'vertical'   && redVehicle.y == height - redVehicle.length)) {
+      setWon(true);
+    } else {
+      setWon(false);
+    }
+  }, [vehicles]);
+
   return (
-    <StyledGrid width={width} height={height}>
+    <>
+      <SquareContainer>
+        <StyledGrid width={width} height={height}>
+          {
+            Object.keys(vehicles).map(id =>
+              <Vehicle key={id} id={id} {...vehicles[id]} selected={id == selectedVehicleId} onClickCallback={handleVehicleClick}/>
+            )
+          }
+        </StyledGrid>
+      </SquareContainer>
       {
-        Object.keys(vehicles).map(id =>
-          <Vehicle key={id} id={id} {...vehicles[id]} selected={id == selectedVehicleId} onClickCallback={handleVehicleClick}/>
-        )
+        won ? <Modal title="Congratulations!" message="You've won!" visible={won}/> : <></>
       }
-    </StyledGrid>
+    </>
   );
 };
 
