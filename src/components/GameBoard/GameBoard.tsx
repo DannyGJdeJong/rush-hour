@@ -54,7 +54,7 @@ const GameBoard: FunctionComponent<GameBoardProps> = ({ width, height, initialVe
           }
 
           // Check if placement is within bounds
-          if (_x >= width || _y >= height) {
+          if (_x >= width || _y >= height || _x < 0 || _y < 0) {
             throw Error('Vehicle ' + id + ' went out of bounds');
           }
 
@@ -144,7 +144,7 @@ const GameBoard: FunctionComponent<GameBoardProps> = ({ width, height, initialVe
       }
 
       // Check if placement is within bounds
-      if (_x >= width || _y >= height) {
+      if (_x >= width || _y >= height || _x < 0 || _y < 0) {
         vehiclePositionValid = false;
         return;
       }
