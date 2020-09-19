@@ -10,6 +10,7 @@ type SwipeableProps = {
 const StyledDiv = styled.div`
   width: 100%;
   height: 100%;
+  touch-action: none;
 `;
 
 const Swipeable: FunctionComponent<SwipeableProps> = ({children, swipeCallback}) => {
