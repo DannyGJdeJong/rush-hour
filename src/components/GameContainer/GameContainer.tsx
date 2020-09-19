@@ -1,8 +1,8 @@
-import React, { FunctionComponent, useEffect, useState } from 'react';
+import React, { FunctionComponent, useState } from 'react';
 import styled from 'styled-components';
 
 import GameBoard from '../GameBoard';
-import { Orientation } from '../../utils/Types';
+import { Puzzle, HardCodedPuzzles } from '../../utils/Puzzles';
 
 const StyledDiv = styled.div`
   display: grid;
@@ -44,28 +44,35 @@ const SettingsDiv = styled.div`
 const GameContainer: FunctionComponent = () => {
   const [moveCount, setMoveCount] = useState<number>(0);
   const [handleSolveButtonClick, setHandleSolveButtonClick] = useState<() => void>();
+  const [selectedPuzzle, setSelectedPuzzle] = useState<Puzzle>(HardCodedPuzzles[0]);
+
+  const onSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedPuzzle(HardCodedPuzzles.find(({ name }) => name === event.target.value));
+    setMoveCount(0);
+  }
 
   return (
     <StyledDiv>
       <SettingsDiv>
         <p> { moveCount } </p>
+        <select onChange={ onSelectChange } value={ selectedPuzzle.name }>
+          {
+            HardCodedPuzzles.map(({ name }) =>
+              <option value={ name }>{ name }</option>
+            )
+          }
+        </select>
         <button onClick={ handleSolveButtonClick }>
           Solve!
         </button>
       </SettingsDiv>
-      <StyledGameBoard width={6}
-               height={6}
-               initialVehicles={[{ id: '0,0', coordinates: { x: 0, y: 0 }, orientation: Orientation.Horizontal, length: 2, color: 'green'  },
-                                 { id: '0,1', coordinates: { x: 0, y: 1 }, orientation: Orientation.Vertical  , length: 3, color: 'purple' },
-                                 { id: '0,4', coordinates: { x: 0, y: 4 }, orientation: Orientation.Vertical  , length: 2, color: 'orange' },
-                                 { id: '1,2', coordinates: { x: 1, y: 2 }, orientation: Orientation.Horizontal, length: 2, color: 'red'    },
-                                 { id: '5,0', coordinates: { x: 5, y: 0 }, orientation: Orientation.Vertical  , length: 3, color: 'yellow' },
-                                 { id: '4,4', coordinates: { x: 4, y: 4 }, orientation: Orientation.Horizontal, length: 2, color: 'teal'   },
-                                 { id: '2,5', coordinates: { x: 2, y: 5 }, orientation: Orientation.Horizontal, length: 3, color: 'green'  },
-                                 { id: '3,1', coordinates: { x: 3, y: 1 }, orientation: Orientation.Vertical  , length: 3, color: 'blue'   }
-                              ]}
-               setMoveCount={ setMoveCount }
-               setSolveClickHandler={ setHandleSolveButtonClick }/>
+      <StyledGameBoard
+        key={ selectedPuzzle.name } // Force re-mount on selectedPuzzle change
+        width={ selectedPuzzle.width }
+        height={ selectedPuzzle.height }
+        initialVehicles={ selectedPuzzle.vehicles }
+        setMoveCount={ setMoveCount }
+        setSolveClickHandler={ setHandleSolveButtonClick }/>
     </StyledDiv>
 
   );
