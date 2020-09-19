@@ -1,4 +1,5 @@
-import { Orientation, VehicleData } from "../Types";
+import { Orientation, VehicleData, Coordinates } from "../Types";
+import { ConstructGrid, IsValidPosition, SolveBoard } from '../GameLogic';
 
 export type Puzzle = {
   name: string
@@ -65,3 +66,74 @@ export const HardCodedPuzzles: Puzzle[] = [
     ]
   }
 ];
+
+const availableColors = ['silver', 'gray', 'black', 'maroon', 'yellow', 'olive', 'lime', 'green', 'aqua', 'teal', 'blue', 'navy', 'fuchsia', 'purple'];
+
+// Very experimental puzzle generator
+// Apparently generating puzzles is quite hard
+export const GeneratePuzzle = (width: number, height: number, minMoveCount: number, tries: number) => {
+  // Keep a list of all placed vehicles
+  let vehicles: VehicleData[] = [];
+
+  // Keep track of how many times we've tried to generate a puzzle
+  let tryCount = 0;
+
+  do {
+    // Reset the list of placed vehicles
+    vehicles = [];
+
+    // Generate a random number between 6 and 11
+    let vehicleCount = Math.floor(Math.random() * 6) + 6;
+
+    // Decide where the red car will be placed
+    // Red car always goes in the center or one above the center row
+    let red_y = Math.ceil(height / 2) - 1;
+    // Red car goes in one of the first three columns
+    let red_x = Math.floor(Math.random() * 3);
+    vehicles.push({ id: red_x + ',' + red_y, coordinates: { x: red_x, y: red_y }, orientation: Orientation.Horizontal, length: 2, color: 'red' });
+
+    let colors = [...availableColors];
+
+    // Now add vehicleCount vehicles to the grid
+    Array(vehicleCount).fill(0).forEach(() => {
+      // Get a random vehicle length
+      let vehicleLength: number = Math.floor(Math.random() * 2) + 2;
+      // Get a random vehicle orientation
+      let vehicleOrientation: Orientation = Math.floor(Math.random() * 2);
+
+      // Get a random vehicle color
+      let colorIndex = Math.floor(Math.random() * colors.length)
+      let vehicleColor: string = colors[colorIndex];
+      colors.splice(colorIndex, 1);
+
+      let grid = ConstructGrid(width, height, vehicles);
+
+      let possibleCoordinates: Coordinates[] = [];
+
+      grid.forEach((row, y) => {
+        // Make sure the red vehicle is the only horizontal vehicle in its row
+        if (vehicleOrientation == Orientation.Horizontal && y == red_y) { return; }
+
+        row.forEach((_, x) => {
+          if (IsValidPosition(grid, { id: width + ',' + height, coordinates: { x: x, y: y }, orientation: vehicleOrientation, length: vehicleLength, color: vehicleColor })) {
+            possibleCoordinates.push({ x: x, y: y });
+          }
+        });
+      });
+
+      // If no possible coordinates were found, skip this vehicle
+      if (possibleCoordinates.length == 0) {
+        return;
+      }
+
+      // Add vehicle to vehicles list with one of the possible coordinates
+      let { x, y } = possibleCoordinates[Math.floor(Math.random() * possibleCoordinates.length)];
+      vehicles.push({ id: x + ',' + y, coordinates: { x: x, y: y }, orientation: vehicleOrientation, length: vehicleLength, color: vehicleColor });
+    });
+
+    tryCount += 1;
+    console.log(tryCount);
+  } while (SolveBoard(width, height, vehicles).length < minMoveCount && tryCount <= tries)
+
+  return vehicles;
+}

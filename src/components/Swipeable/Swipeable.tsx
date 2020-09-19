@@ -39,10 +39,9 @@ const Swipeable: FunctionComponent<SwipeableProps> = ({children, swipeCallback})
     event.preventDefault()
   }
 
-  const mouseUpHandler = (event: React.MouseEvent | MouseEvent) => {
+  const mouseUpHandler = () => {
     // Stop dragging when the mouse is released
     setDragging(false);
-    event.preventDefault()
   }
 
   useEffect(() => {
