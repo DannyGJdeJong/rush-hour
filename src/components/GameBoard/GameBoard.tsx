@@ -1,5 +1,5 @@
 // Import libraries
-import React, { FunctionComponent, useState, useEffect } from 'react';
+import React, { FunctionComponent, useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 
 // Import components
@@ -8,6 +8,10 @@ import Vehicle from '../Vehicle';
 import Modal from '../Modal';
 import Grid from '../Grid';
 
+// Import utils
+import { VehicleData, GridCell, Orientation, Direction } from '../../utils/Types';
+import { IsValidPosition, ConstructGrid, MoveVehicle } from '../../utils/GameLogic';
+
 type GameBoardProps = {
   width: number
   height: number
@@ -15,70 +19,24 @@ type GameBoardProps = {
   setMoveCount: React.Dispatch<React.SetStateAction<number>>
 }
 
-type VehicleData = {
-  x: number
-  y: number
-  orientation: 'vertical' | 'horizontal'
-  length: number
-  color: string
-}
-
-type SquareData = string | null
-
 const StyledGrid = styled(Grid)`
   width: 100%;
   height: 100%;
 `;
 
 const GameBoard: FunctionComponent<GameBoardProps> = ({ width, height, initialVehicles, setMoveCount }) => {
-  const [squares, setSquares] = useState<SquareData[][]>(Array(height).fill(null).map(() => Array(width).fill(null)));
-  const [vehicles, setVehicles] = useState<{[id: string] : VehicleData}>(Object.assign({}, ...initialVehicles.map((vehicle) => ({[vehicle.x + ',' + vehicle.y]: vehicle}))));
+  const [vehicles, setVehicles] = useState<VehicleData[]>(initialVehicles);
+  const [grid, setGrid] = useState<GridCell[][]>(ConstructGrid(width, height, vehicles));
   const [won, setWon] = useState<boolean>(false);
 
-  // Update squares whenever a vehicle changes
+  // Update grid whenever a vehicle changes
   useEffect(() => {
-    setSquares(() => {
-      let newSquares: SquareData[][] = Array(height).fill(null).map(() => Array(width).fill(null));
-
-      // For each vehicle, reserve the squares it occupies
-      Object.keys(vehicles).forEach((id) => {
-        let { x, y, orientation, length } = vehicles[id];
-
-        // Loop through a range from 0 to length
-        [...Array(length).keys()].forEach((i) => {
-          let _x = x;
-          let _y = y;
-
-          // Adjust the coordinates according to the orientation
-          if (orientation === 'horizontal') {
-            _x += i;
-          } else if (orientation === 'vertical') {
-            _y += i;
-          } else {
-            throw Error('Vehicle ' + id + ' has invalid orientation');
-          }
-
-          // Check if placement is within bounds
-          if (_x >= width || _y >= height || _x < 0 || _y < 0) {
-            throw Error('Vehicle ' + id + ' went out of bounds');
-          }
-
-          // Check if another vehicle is already in the same spot
-          if (newSquares[_y][_x] != null) {
-            throw Error('Vehicle ' + id + ' collides with ' + newSquares[_y][_x]);
-          }
-
-          // If everything checks out, reserve spot for current vehicle
-          newSquares[_y][_x] = id;
-        });
-      });
-
-      return newSquares;
-    });
+    setGrid(ConstructGrid(width, height, vehicles));
   }, [vehicles]);
 
   const [selectedVehicleId, setSelectedVehicleId] = useState<string>(null);
 
+  // Globally register a keydown handler for handling keyboard input
   useEffect(() => {
     // Register keydown handler
     document.addEventListener('keydown', handleKeyDown);
@@ -94,76 +52,28 @@ const GameBoard: FunctionComponent<GameBoardProps> = ({ width, height, initialVe
     setSelectedVehicleId(id);
   };
 
-  const moveVehicle = (id: string, direction: 'up' | 'down' | 'left' | 'right') => {
-     // Create a temporary new vehicle
-     let newVehicle: VehicleData = {...vehicles[id]};
+  const moveVehicle = (id: string, direction: Direction) => {
+    // Search for vehicle by id
+    let vehicle = vehicles.find((vehicle) => vehicle.id === id);
 
-     // Adjust the new vehicle's position
-     switch(direction) {
-       case 'up':
-         if (newVehicle.orientation === 'vertical') {
-           newVehicle.y -= 1;
-         }
-         break;
-       case 'left':
-         if (newVehicle.orientation === 'horizontal') {
-           newVehicle.x -= 1;
-         }
-         break;
-       case 'down':
-         if (newVehicle.orientation === 'vertical') {
-           newVehicle.y += 1;
-         }
-         break;
-       case 'right':
-         if (newVehicle.orientation === 'horizontal') {
-           newVehicle.x += 1;
-         }
-         break;
-     }
+    // Create a temporary new vehicle
+    let newVehicle: VehicleData = MoveVehicle(vehicle, direction);
 
     // If nothing changed, don't update vehicles
-    if (newVehicle.x == vehicles[id].x && newVehicle.y == vehicles[id].y) { return }
-
-    let vehiclePositionValid = true;
-
-    // Check constraints for moving vehicle
-    [...Array(newVehicle.length).keys()].forEach((i) => {
-      let _x = newVehicle.x;
-      let _y = newVehicle.y;
-
-      // Adjust the coordinates according to the orientation
-      if (newVehicle.orientation === 'horizontal') {
-        _x += i;
-      } else if (newVehicle.orientation === 'vertical') {
-        _y += i;
-      } else {
-        vehiclePositionValid = false;
-        return;
-      }
-
-      // Check if placement is within bounds
-      if (_x >= width || _y >= height || _x < 0 || _y < 0) {
-        vehiclePositionValid = false;
-        return;
-      }
-
-      // Check if spot is available (either null or itself)
-      if (!(squares[_y][_x] == null || squares[_y][_x] === id)) {
-        vehiclePositionValid = false;
-        return;
-      }
-    });
+    if (JSON.stringify(newVehicle) === JSON.stringify(vehicle)) { return }
 
     // If vehicle position is invalid, return
-    if (!vehiclePositionValid) { return; }
+    if (!IsValidPosition(grid, newVehicle)) { return; }
 
     // If the code hasn't returned by now the vehicle must be placeable
     setVehicles((vehicles) => {
-      let newVehicles = {...vehicles};
-      newVehicles[id] = newVehicle;
-
-      return newVehicles;
+      return vehicles.map((vehicle) => {
+        if (vehicle.id === id) {
+          return newVehicle;
+        } else {
+          return vehicle;
+        }
+      });
     });
 
     // Update moveCount
@@ -182,16 +92,16 @@ const GameBoard: FunctionComponent<GameBoardProps> = ({ width, height, initialVe
     // Adjust the new vehicle's position
     switch(event.code) {
       case 'ArrowUp': case 'KeyW':
-        moveVehicle(selectedVehicleId, 'up');
+        moveVehicle(selectedVehicleId, Direction.Up);
         break;
       case 'ArrowLeft': case 'KeyA':
-        moveVehicle(selectedVehicleId, 'left');
+        moveVehicle(selectedVehicleId, Direction.Left);
         break;
       case 'ArrowDown': case 'KeyS':
-        moveVehicle(selectedVehicleId, 'down');
+        moveVehicle(selectedVehicleId, Direction.Down);
         break;
       case 'ArrowRight': case 'KeyD':
-        moveVehicle(selectedVehicleId, 'right');
+        moveVehicle(selectedVehicleId, Direction.Right);
         break;
     }
   };
@@ -200,13 +110,13 @@ const GameBoard: FunctionComponent<GameBoardProps> = ({ width, height, initialVe
   useEffect(() => {
     // Find the objective vehicle, marked by its color, red
     // This assumes there's just a single red car at all times
-    let redVehicle = Object.values(vehicles).find(vehicle => vehicle.color === 'red');
+    let redVehicle = vehicles.find(vehicle => vehicle.color === 'red');
 
     // Determine whether the red car is in a winning position
     // This assumes the winning position is either on the right or at the bottom of the grid
     // The latter should never occur in a normal game of rush-hour, but it's possible to still win if the car is somehow rotated
-    if ((redVehicle.orientation === 'horizontal' && redVehicle.x == width - redVehicle.length) ||
-        (redVehicle.orientation === 'vertical'   && redVehicle.y == height - redVehicle.length)) {
+    if ((redVehicle.orientation == Orientation.Horizontal && redVehicle.coordinates.x == width - redVehicle.length) ||
+        (redVehicle.orientation == Orientation.Vertical   && redVehicle.coordinates.y == height - redVehicle.length)) {
       setWon(true);
     } else {
       setWon(false);
@@ -218,8 +128,8 @@ const GameBoard: FunctionComponent<GameBoardProps> = ({ width, height, initialVe
       <SquareContainer>
         <StyledGrid width={width} height={height}>
           {
-            Object.keys(vehicles).map(id =>
-              <Vehicle key={id} id={id} {...vehicles[id]} selected={id == selectedVehicleId} onClickCallback={handleVehicleClick} moveVehicle={moveVehicle}/>
+            vehicles.map(vehicle =>
+              <Vehicle key={vehicle.id} {...vehicle} selected={vehicle.id == selectedVehicleId} onClickCallback={handleVehicleClick} moveVehicle={moveVehicle}/>
             )
           }
         </StyledGrid>

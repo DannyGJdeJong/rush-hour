@@ -1,11 +1,8 @@
 import styled from 'styled-components';
 
-type GridSquareProps = {
-  x: number
-  y: number
-}
+import { Coordinates } from '../../utils/Types';
 
-const GridSquare = styled.div<GridSquareProps>`
+const GridSquare = styled.div<Coordinates>`
   display: grid;
 
   grid-column-start: ${({x}) => x + 1};

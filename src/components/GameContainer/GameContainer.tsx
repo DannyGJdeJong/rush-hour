@@ -2,6 +2,7 @@ import React, { FunctionComponent, useState } from 'react';
 import styled from 'styled-components';
 
 import GameBoard from '../GameBoard';
+import { Orientation } from '../../utils/Types';
 
 const StyledDiv = styled.div`
   display: grid;
@@ -37,14 +38,14 @@ const GameContainer: FunctionComponent = () => {
 
       <StyledGameBoard width={6}
                height={6}
-               initialVehicles={[{x: 0, y: 0, orientation: 'horizontal', length: 2, color: 'green'},
-                                 {x: 0, y: 1, orientation: 'vertical', length: 3, color: 'purple'},
-                                 {x: 0, y: 4, orientation: 'vertical', length: 2, color: 'orange'},
-                                 {x: 1, y: 2, orientation: 'horizontal', length: 2, color: 'red'},
-                                 {x: 5, y: 0, orientation: 'vertical', length: 3, color: 'yellow'},
-                                 {x: 4, y: 4, orientation: 'horizontal', length: 2, color: 'teal'},
-                                 {x: 2, y: 5, orientation: 'horizontal', length: 3, color: 'green'},
-                                 {x: 3, y: 1, orientation: 'vertical', length: 3, color: 'blue'}
+               initialVehicles={[{ id: '0,0', coordinates: { x: 0, y: 0 }, orientation: Orientation.Horizontal, length: 2, color: 'green'  },
+                                 { id: '0,1', coordinates: { x: 0, y: 1 }, orientation: Orientation.Vertical  , length: 3, color: 'purple' },
+                                 { id: '0,4', coordinates: { x: 0, y: 4 }, orientation: Orientation.Vertical  , length: 2, color: 'orange' },
+                                 { id: '1,2', coordinates: { x: 1, y: 2 }, orientation: Orientation.Horizontal, length: 2, color: 'red'    },
+                                 { id: '5,0', coordinates: { x: 5, y: 0 }, orientation: Orientation.Vertical  , length: 3, color: 'yellow' },
+                                 { id: '4,4', coordinates: { x: 4, y: 4 }, orientation: Orientation.Horizontal, length: 2, color: 'teal'   },
+                                 { id: '2,5', coordinates: { x: 2, y: 5 }, orientation: Orientation.Horizontal, length: 3, color: 'green'  },
+                                 { id: '3,1', coordinates: { x: 3, y: 1 }, orientation: Orientation.Vertical  , length: 3, color: 'blue'   }
                               ]}
                setMoveCount={setMoveCount}/>
     </StyledDiv>
