@@ -11,7 +11,6 @@ export const SolveBoard = (width: number, height: number, vehicles: VehicleData[
     const { moves, vehicles } = queue.shift();
 
     if (HasWinningCondition(width, height, vehicles)) {
-      console.log(JSON.parse(JSON.stringify(moves)));
       return moves;
     }
 

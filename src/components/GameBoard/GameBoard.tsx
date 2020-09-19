@@ -83,10 +83,10 @@ const GameBoard: FunctionComponent<GameBoardProps> = ({ width, height, initialVe
     let newVehicle: VehicleData = MoveVehicle(vehicle, direction);
 
     // If nothing changed, don't update vehicles
-    if (JSON.stringify(newVehicle) === JSON.stringify(vehicle)) { console.log(newVehicle); return; }
+    if (JSON.stringify(newVehicle) === JSON.stringify(vehicle)) { return; }
 
     // If vehicle position is invalid, return
-    if (!IsValidPosition(grid, newVehicle)) { console.log(newVehicle); return; }
+    if (!IsValidPosition(grid, newVehicle)) { return; }
 
     // If the code hasn't returned by now the vehicle must be placeable
     setVehicles((vehicles) => {
