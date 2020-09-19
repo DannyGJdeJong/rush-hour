@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useState } from 'react';
+import React, { FunctionComponent, useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import GameBoard from '../GameBoard';
@@ -29,13 +29,30 @@ const StyledGameBoard = styled(GameBoard)`
   }
 `;
 
+const SettingsDiv = styled.div`
+  @media (orientation: landscape) {
+    grid-column-start: 1;
+    grid-row-start: 1;
+  }
+
+  @media (orientation: portrait) {
+    grid-column-start: 1;
+    grid-row-start: 1;
+  }
+`;
+
 const GameContainer: FunctionComponent = () => {
   const [moveCount, setMoveCount] = useState<number>(0);
+  const [handleSolveButtonClick, setHandleSolveButtonClick] = useState<() => void>();
 
   return (
     <StyledDiv>
-      <p> {moveCount} </p>
-
+      <SettingsDiv>
+        <p> { moveCount } </p>
+        <button onClick={ handleSolveButtonClick }>
+          Solve!
+        </button>
+      </SettingsDiv>
       <StyledGameBoard width={6}
                height={6}
                initialVehicles={[{ id: '0,0', coordinates: { x: 0, y: 0 }, orientation: Orientation.Horizontal, length: 2, color: 'green'  },
@@ -47,7 +64,8 @@ const GameContainer: FunctionComponent = () => {
                                  { id: '2,5', coordinates: { x: 2, y: 5 }, orientation: Orientation.Horizontal, length: 3, color: 'green'  },
                                  { id: '3,1', coordinates: { x: 3, y: 1 }, orientation: Orientation.Vertical  , length: 3, color: 'blue'   }
                               ]}
-               setMoveCount={setMoveCount}/>
+               setMoveCount={ setMoveCount }
+               setSolveClickHandler={ setHandleSolveButtonClick }/>
     </StyledDiv>
 
   );
