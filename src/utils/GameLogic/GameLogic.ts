@@ -1,7 +1,96 @@
-import { GridCell, VehicleData, Orientation, Coordinates, Direction } from '../Types';
+import { GridCell, VehicleData, Orientation, Coordinates, Direction, Move } from '../Types';
 
-export const SolveBoard = () => {
+export const SolveBoard = (width: number, height: number, vehicles: VehicleData[]): Move[] => {
+  // Save all 'visited' grids so we don't return to the same state
+  let visitedGrids = new Set();
 
+  // Keep track of all game states
+  let queue: { moves: Move[], vehicles: VehicleData[] }[] = [{ moves: [], vehicles: vehicles }]
+
+  while (queue.length > 0) {
+    const { moves, vehicles } = queue.shift();
+
+    if (HasWinningCondition(width, height, vehicles)) {
+      console.log(JSON.parse(JSON.stringify(moves)));
+      return moves;
+    }
+
+    GetAllGameStates(width, height, vehicles).forEach(({ move, vehicles }) => {
+      // Calculate the ""hashed"" grid for this game state to use for set comparison
+      let hashedGrid = JSON.stringify(ConstructGrid(width, height, vehicles));
+
+      // If this grid has not been visited, add it to the queue
+      if (!visitedGrids.has(hashedGrid)) {
+        visitedGrids.add(hashedGrid);
+        queue.push({ moves: [...moves, move], vehicles: vehicles });
+      }
+    });
+  }
+
+  console.log("No winning condition could be found for this game");
+  return [];
+}
+
+export const HasWinningCondition = (width: number, height: number, vehicles: VehicleData[]): boolean => {
+  // Find the objective vehicle, marked by its color, red
+  // This assumes there's just a single red car at all times
+  let redVehicle = vehicles.find(vehicle => vehicle.color === 'red');
+
+  // Determine whether the red car is in a winning position
+  // This assumes the winning position is either on the right or at the bottom of the grid
+  // The latter should never occur in a normal game of rush-hour, but it's possible to still win if the car is somehow rotated
+  if ((redVehicle.orientation == Orientation.Horizontal && redVehicle.coordinates.x == width - redVehicle.length) ||
+      (redVehicle.orientation == Orientation.Vertical   && redVehicle.coordinates.y == height - redVehicle.length)) {
+    return true;
+  }
+
+  return false;
+}
+
+const GetAllGameStates = (width: number, height: number, vehicles: VehicleData[]): { move: Move, vehicles: VehicleData[] }[] => {
+  // Declare a return variable
+  let retval: { move: Move, vehicles: VehicleData[] }[] = [];
+
+  // Calculate grid for current game state
+  let grid = ConstructGrid(width, height, vehicles);
+
+  // For each vehicle in the current game state ...
+  vehicles.forEach((vehicle) => {
+    // Get all directions the vehicle can move based on its orientation
+    let directions = [];
+
+    switch (vehicle.orientation) {
+      case Orientation.Horizontal:
+        directions = [Direction.Left, Direction.Right];
+        break;
+      case Orientation.Vertical:
+        directions = [Direction.Up, Direction.Down];
+        break;
+    }
+
+    // For each direction ...
+    directions.forEach((direction) => {
+      // Check if the new position is valid
+      let newVehicle = MoveVehicle(vehicle, direction);
+
+      if (IsValidPosition(grid, newVehicle)) {
+        // Create an updated game state that includes the moved vehicle
+        let newVehicles = vehicles.map((vehicle) => {
+          if (vehicle.id === newVehicle.id) {
+            return newVehicle;
+          } else {
+            return vehicle;
+          }
+        });
+
+        // Add the move and updated game state to the return value
+        retval.push({ move: { vehicle: vehicle, direction: direction }, vehicles: newVehicles })
+      }
+    });
+  });
+
+  // Finally return all possible game states that can be made from the current game state
+  return retval
 }
 
 export const IsValidPosition = (grid: GridCell[][], vehicle: VehicleData): boolean => {

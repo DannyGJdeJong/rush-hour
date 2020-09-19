@@ -1,5 +1,5 @@
 // Import libraries
-import React, { FunctionComponent, useState, useEffect, useCallback } from 'react';
+import React, { FunctionComponent, useState, useEffect } from 'react';
 import styled from 'styled-components';
 
 // Import components
@@ -9,14 +9,15 @@ import Modal from '../Modal';
 import Grid from '../Grid';
 
 // Import utils
-import { VehicleData, GridCell, Orientation, Direction } from '../../utils/Types';
-import { IsValidPosition, ConstructGrid, MoveVehicle } from '../../utils/GameLogic';
+import { VehicleData, GridCell, Direction, Move } from '../../utils/Types';
+import { IsValidPosition, ConstructGrid, MoveVehicle, HasWinningCondition, SolveBoard } from '../../utils/GameLogic';
 
 type GameBoardProps = {
   width: number
   height: number
   initialVehicles: VehicleData[]
   setMoveCount: React.Dispatch<React.SetStateAction<number>>
+  setSolveClickHandler: React.Dispatch<React.SetStateAction<() => void>>
 }
 
 const StyledGrid = styled(Grid)`
@@ -24,17 +25,39 @@ const StyledGrid = styled(Grid)`
   height: 100%;
 `;
 
-const GameBoard: FunctionComponent<GameBoardProps> = ({ width, height, initialVehicles, setMoveCount }) => {
+const GameBoard: FunctionComponent<GameBoardProps> = ({ width, height, initialVehicles, setMoveCount, setSolveClickHandler }) => {
   const [vehicles, setVehicles] = useState<VehicleData[]>(initialVehicles);
   const [grid, setGrid] = useState<GridCell[][]>(ConstructGrid(width, height, vehicles));
+  const [selectedVehicleId, setSelectedVehicleId] = useState<string>(null);
   const [won, setWon] = useState<boolean>(false);
+  const [moves, setMoves] = useState<Move[]>([]);
+
+  // Set solve button click handler on component mount
+  useEffect(() => {
+    setSolveClickHandler(() => { return startSolving });
+  }, []);
 
   // Update grid whenever a vehicle changes
   useEffect(() => {
     setGrid(ConstructGrid(width, height, vehicles));
   }, [vehicles]);
 
-  const [selectedVehicleId, setSelectedVehicleId] = useState<string>(null);
+  // Start moving vehicles when there's moves to be done
+  useEffect(() => {
+    if (moves.length == 0) { return; }
+
+    const moveInterval = setInterval(() => {
+      setMoves((moves) => {
+        const { vehicle, direction } = moves.shift();
+        moveVehicle(vehicle.id, direction);
+        return moves;
+      });
+    }, 50);
+
+    // Clear the interval every time useEffect runs
+    return () => clearInterval(moveInterval);
+
+  }, [grid, moves]);
 
   // Globally register a keydown handler for handling keyboard input
   useEffect(() => {
@@ -47,10 +70,10 @@ const GameBoard: FunctionComponent<GameBoardProps> = ({ width, height, initialVe
     };
   });
 
-  const handleVehicleClick = (_: React.MouseEvent, id: string) => {
-    // Update selected vehicle
-    setSelectedVehicleId(id);
-  };
+  // Check if the red car is in a winning position
+  useEffect(() => {
+    setWon(HasWinningCondition(width, height, vehicles));
+  }, [vehicles]);
 
   const moveVehicle = (id: string, direction: Direction) => {
     // Search for vehicle by id
@@ -60,10 +83,10 @@ const GameBoard: FunctionComponent<GameBoardProps> = ({ width, height, initialVe
     let newVehicle: VehicleData = MoveVehicle(vehicle, direction);
 
     // If nothing changed, don't update vehicles
-    if (JSON.stringify(newVehicle) === JSON.stringify(vehicle)) { return }
+    if (JSON.stringify(newVehicle) === JSON.stringify(vehicle)) { console.log(newVehicle); return; }
 
     // If vehicle position is invalid, return
-    if (!IsValidPosition(grid, newVehicle)) { return; }
+    if (!IsValidPosition(grid, newVehicle)) { console.log(newVehicle); return; }
 
     // If the code hasn't returned by now the vehicle must be placeable
     setVehicles((vehicles) => {
@@ -106,22 +129,15 @@ const GameBoard: FunctionComponent<GameBoardProps> = ({ width, height, initialVe
     }
   };
 
-  // Check if the red car is in a winning position
-  useEffect(() => {
-    // Find the objective vehicle, marked by its color, red
-    // This assumes there's just a single red car at all times
-    let redVehicle = vehicles.find(vehicle => vehicle.color === 'red');
+  const startSolving = () => {
+    console.log("Starting solving")
+    setMoves(SolveBoard(width, height, vehicles));
+  }
 
-    // Determine whether the red car is in a winning position
-    // This assumes the winning position is either on the right or at the bottom of the grid
-    // The latter should never occur in a normal game of rush-hour, but it's possible to still win if the car is somehow rotated
-    if ((redVehicle.orientation == Orientation.Horizontal && redVehicle.coordinates.x == width - redVehicle.length) ||
-        (redVehicle.orientation == Orientation.Vertical   && redVehicle.coordinates.y == height - redVehicle.length)) {
-      setWon(true);
-    } else {
-      setWon(false);
-    }
-  }, [vehicles]);
+  const handleVehicleClick = (_: React.MouseEvent, id: string) => {
+    // Update selected vehicle
+    setSelectedVehicleId(id);
+  };
 
   return (
     <>
@@ -129,7 +145,7 @@ const GameBoard: FunctionComponent<GameBoardProps> = ({ width, height, initialVe
         <StyledGrid width={width} height={height}>
           {
             vehicles.map(vehicle =>
-              <Vehicle key={vehicle.id} {...vehicle} selected={vehicle.id == selectedVehicleId} onClickCallback={handleVehicleClick} moveVehicle={moveVehicle}/>
+              <Vehicle key={ vehicle.id } { ...vehicle } selected={ vehicle.id == selectedVehicleId } onClickCallback={ handleVehicleClick } moveVehicle={ moveVehicle }/>
             )
           }
         </StyledGrid>

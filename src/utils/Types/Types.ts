@@ -29,3 +29,8 @@ export enum RelativeDirection {
   Forward,
   Backward
 }
+
+export type Move = {
+  vehicle: VehicleData
+  direction: Direction
+}
