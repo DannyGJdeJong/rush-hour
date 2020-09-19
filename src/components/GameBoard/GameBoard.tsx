@@ -32,10 +32,10 @@ const GameBoard: FunctionComponent<GameBoardProps> = ({ width, height, initialVe
   const [won, setWon] = useState<boolean>(false);
   const [moves, setMoves] = useState<Move[]>([]);
 
-  // Set solve button click handler on component mount
+  // Update solve button click handler whenever a vehicle changes
   useEffect(() => {
     setSolveClickHandler(() => { return startSolving });
-  }, []);
+  }, [vehicles]);
 
   // Update grid whenever a vehicle changes
   useEffect(() => {
