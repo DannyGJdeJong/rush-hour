@@ -30,7 +30,7 @@ const StyledGridSquare = styled(GridSquare)<StyledGridSquareProps>`
 
   &.selected {
     border-style: solid;
-    border-color: white;
+    border-color: black;
   }
 `;
 
