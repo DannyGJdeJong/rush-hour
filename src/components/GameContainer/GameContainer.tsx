@@ -1,9 +1,15 @@
+// Import libraries
 import React, { FunctionComponent, useEffect, useState } from 'react';
 import styled from 'styled-components';
 
+// Import components
+import NumberInput from '../NumberInput';
 import GameBoard from '../GameBoard';
+
+// Import utils
 import { Puzzle, HardCodedPuzzles, GeneratePuzzle } from '../../utils/Puzzles';
 import { SolveBoard } from '../../utils/GameLogic';
+
 
 const StyledDiv = styled.div`
   display: grid;
@@ -37,74 +43,45 @@ const SettingsDiv = styled.div`
 `;
 
 const GameContainer: FunctionComponent = () => {
+  // Various states
   const [moveCount, setMoveCount] = useState<number>(0);
-  const [handleSolveButtonClick, setHandleSolveButtonClick] = useState<() => void>();
-  const [selectedPuzzle, setSelectedPuzzle] = useState<Puzzle>(HardCodedPuzzles[0]);
   const [optimalMoveCount, setOptimalMoveCount] = useState<number>();
+  const [selectedPuzzle, setSelectedPuzzle] = useState<Puzzle>(HardCodedPuzzles[0]);
+
+  // Solve button click handler that can be set by GameBoard
+  const [handleSolveButtonClick, setHandleSolveButtonClick] = useState<() => void>();
+
+  // Reset variable
   const [reset, setReset] = useState<boolean>(false);
+
+  // Puzzle generator input state
   const [generatedPuzzleWidth, setGeneratedPuzzleWidth] = useState<number>(6);
   const [generatedPuzzleHeight, setGeneratedPuzzleHeight] = useState<number>(6);
   const [generatedPuzzleMinMoves, setGeneratedPuzzleMinMoves] = useState<number>(20);
   const [generatedPuzzleTries, setGeneratedPuzzleTries] = useState<number>(500);
 
+  // When the selected puzzle changes, update optimal move count
   useEffect(() => {
     setOptimalMoveCount(SolveBoard(selectedPuzzle.width, selectedPuzzle.height, selectedPuzzle.vehicles).length);
   }, [selectedPuzzle]);
 
+  // When the puzzle selector changes, update selected level and reset movecount
   const onSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedPuzzle(HardCodedPuzzles.find(({ name }) => name === event.target.value));
     setMoveCount(0);
   }
 
+  // When the reset button is clicked, re-mount GameBoard and reset movecount
   const handleResetButtonClick = () => {
     setReset((reset) => !reset);
     setMoveCount(0);
   }
 
+  // When the generate button is clicked, generate a random puzzle, re-mount GameBoard and reset movecount
   const handleGenerateButtonClick = () => {
     setSelectedPuzzle({ name: "Random", width: generatedPuzzleWidth, height: generatedPuzzleHeight, vehicles: GeneratePuzzle(generatedPuzzleWidth, generatedPuzzleHeight, generatedPuzzleMinMoves, generatedPuzzleTries) });
     setReset((reset) => !reset);
     setMoveCount(0);
-  }
-
-  const handleGeneratedPuzzleWidthChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    // Parse input value
-    let value = parseInt(event.target.value);
-    // Enforce lower limit
-    value = Math.max(value, 5);
-    // Enforce upper limit
-    value = Math.min(value, 10);
-    setGeneratedPuzzleWidth(value);
-  }
-
-  const handleGeneratedPuzzleHeightChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    // Parse input value
-    let value = parseInt(event.target.value);
-    // Enforce lower limit
-    value = Math.max(value, 5);
-    // Enforce upper limit
-    value = Math.min(value, 10);
-    setGeneratedPuzzleHeight(value);
-  }
-
-  const handleGeneratedPuzzleMinMovesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    // Parse input value
-    let value = parseInt(event.target.value);
-    // Enforce lower limit
-    value = Math.max(value, 5);
-    // Enforce upper limit
-    value = Math.min(value, 100);
-    setGeneratedPuzzleMinMoves(value);
-  }
-
-  const handleGeneratedPuzzleTriesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    // Parse input value
-    let value = parseInt(event.target.value);
-    // Enforce lower limit
-    value = Math.max(value, 1);
-    // Enforce upper limit
-    value = Math.min(value, 1000);
-    setGeneratedPuzzleTries(value);
   }
 
   return (
@@ -129,13 +106,13 @@ const GameContainer: FunctionComponent = () => {
         <hr></hr>
         <p> Generate a random level (experimental, keep console open for generation progress, may take a long time): </p>
         <p> Width: </p>
-        <input min={ 5 } max={ 10 }  type="number" value={ generatedPuzzleWidth }    onChange={ handleGeneratedPuzzleWidthChange } />
+        <NumberInput min={ 5 } max={ 10 }   value={ generatedPuzzleWidth }     onChangeCallback={ setGeneratedPuzzleWidth }    />
         <p> Height: </p>
-        <input min={ 5 } max={ 10 }  type="number" value={ generatedPuzzleHeight }   onChange={ handleGeneratedPuzzleHeightChange } />
+        <NumberInput min={ 5 } max={ 10 }   value={ generatedPuzzleHeight }    onChangeCallback={ setGeneratedPuzzleHeight }   />
         <p> Minimum moves to solve: </p>
-        <input min={ 5 } max={ 100 } type="number" value={ generatedPuzzleMinMoves } onChange={ handleGeneratedPuzzleMinMovesChange } />
+        <NumberInput min={ 5 } max={ 100 }  value={ generatedPuzzleMinMoves }  onChangeCallback={ setGeneratedPuzzleMinMoves } />
         <p> Amount of times to try generating a puzzle before giving up: </p>
-        <input min={ 1 } max={ 1000 } type="number" value={ generatedPuzzleTries } onChange={ handleGeneratedPuzzleTriesChange } />
+        <NumberInput min={ 1 } max={ 1000 } value={ generatedPuzzleTries }     onChangeCallback={ setGeneratedPuzzleTries }    />
         <p></p>
         <button onClick={ handleGenerateButtonClick }>
           Generate
