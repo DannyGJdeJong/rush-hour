@@ -39,6 +39,10 @@ const SettingsDiv = styled.div`
   padding: 20px;
   grid-column-start: 1;
   grid-row-start: 1;
+
+  @media (orientation: landscape) {
+    grid-row-end: 5;
+  }
 `;
 
 const GameContainer: FunctionComponent = () => {
@@ -56,6 +60,10 @@ const GameContainer: FunctionComponent = () => {
   // Puzzle generator input state
   const [generatedPuzzleWidth, setGeneratedPuzzleWidth] = useState<number>(6);
   const [generatedPuzzleHeight, setGeneratedPuzzleHeight] = useState<number>(6);
+  const [generatedPuzzleCarLength, setGeneratedPuzzleCarLength] = useState<number>(2);
+  const [generatedPuzzleCarCount, setGeneratedPuzzleCarCount] = useState<number>(4);
+  const [generatedPuzzleTruckLength, setGeneratedPuzzleTruckLength] = useState<number>(3);
+  const [generatedPuzzleTruckCount, setGeneratedPuzzleTruckCount] = useState<number>(4);
   const [generatedPuzzleMinMoves, setGeneratedPuzzleMinMoves] = useState<number>(20);
   const [generatedPuzzleTries, setGeneratedPuzzleTries] = useState<number>(500);
 
@@ -78,7 +86,19 @@ const GameContainer: FunctionComponent = () => {
 
   // When the generate button is clicked, generate a random puzzle, re-mount GameBoard and reset movecount
   const handleGenerateButtonClick = () => {
-    setSelectedPuzzle({ name: "Random", width: generatedPuzzleWidth, height: generatedPuzzleHeight, vehicles: GeneratePuzzle(generatedPuzzleWidth, generatedPuzzleHeight, generatedPuzzleMinMoves, generatedPuzzleTries) });
+    setSelectedPuzzle({
+      name: "Random",
+      width: generatedPuzzleWidth,
+      height: generatedPuzzleHeight,
+      vehicles: GeneratePuzzle(generatedPuzzleWidth,
+                               generatedPuzzleHeight,
+                               generatedPuzzleMinMoves,
+                               generatedPuzzleTries,
+                               generatedPuzzleCarLength,
+                               generatedPuzzleCarCount,
+                               generatedPuzzleTruckLength,
+                               generatedPuzzleTruckCount)
+    });
     setReset((reset) => !reset);
     setMoveCount(0);
   }
@@ -105,13 +125,62 @@ const GameContainer: FunctionComponent = () => {
         <hr></hr>
         <p> Generate a random level (experimental, keep console open for generation progress, may take a long time): </p>
         <p> Width: </p>
-        <NumberInput min={ 5 } max={ 10 }   value={ generatedPuzzleWidth }     onChangeCallback={ setGeneratedPuzzleWidth }    />
+        <NumberInput
+          min={ 5 }
+          max={ 10 }
+          value={ generatedPuzzleWidth }
+          onChangeCallback={ setGeneratedPuzzleWidth }
+        />
         <p> Height: </p>
-        <NumberInput min={ 5 } max={ 10 }   value={ generatedPuzzleHeight }    onChangeCallback={ setGeneratedPuzzleHeight }   />
+        <NumberInput
+          min={ 5 }
+          max={ 10 }
+          value={ generatedPuzzleHeight }
+          onChangeCallback={ setGeneratedPuzzleHeight }
+        />
+        <p> Car length: </p>
+        <NumberInput
+          min={ 1 }
+          // Makes sure the red car can still be placed since it'll be at most in x = 2
+          max={ Math.min(generatedPuzzleWidth, generatedPuzzleHeight) - 2 }
+          value={ generatedPuzzleCarLength } onChangeCallback={ setGeneratedPuzzleCarLength }
+        />
+        <p> Car count: </p>
+        <NumberInput
+          min={ 0 }
+          max={ 10 }
+          value={ generatedPuzzleCarCount }
+          onChangeCallback={ setGeneratedPuzzleCarCount }
+        />
+        <p> Truck length: </p>
+        <NumberInput
+          min={ 1 }
+          // Makes sure the truck can still move at least one tile
+          max={ Math.min(generatedPuzzleWidth, generatedPuzzleHeight) - 1 }
+          value={ generatedPuzzleTruckLength }
+          onChangeCallback={ setGeneratedPuzzleTruckLength }
+        />
+        <p> Truck count: </p>
+        <NumberInput
+          min={ 0 }
+          max={ 10 }
+          value={ generatedPuzzleTruckCount }
+          onChangeCallback={ setGeneratedPuzzleTruckCount }
+        />
         <p> Minimum moves to solve: </p>
-        <NumberInput min={ 5 } max={ 100 }  value={ generatedPuzzleMinMoves }  onChangeCallback={ setGeneratedPuzzleMinMoves } />
+        <NumberInput
+          min={ 1 }
+          max={ 100 }
+          value={ generatedPuzzleMinMoves }
+          onChangeCallback={ setGeneratedPuzzleMinMoves }
+        />
         <p> Amount of times to try generating a puzzle before giving up: </p>
-        <NumberInput min={ 1 } max={ 1000 } value={ generatedPuzzleTries }     onChangeCallback={ setGeneratedPuzzleTries }    />
+        <NumberInput
+          min={ 1 }
+          max={ 1000 }
+          value={ generatedPuzzleTries }
+          onChangeCallback={ setGeneratedPuzzleTries }
+        />
         <p></p>
         <button onClick={ handleGenerateButtonClick }>
           Generate

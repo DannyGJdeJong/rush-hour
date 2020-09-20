@@ -72,7 +72,7 @@ const availableColors = ['silver', 'gray', 'black', 'maroon', 'yellow', 'olive',
 
 // Very experimental puzzle generator
 // Apparently generating puzzles is quite hard
-export const GeneratePuzzle = (width: number, height: number, minMoveCount: number, tries: number) => {
+export const GeneratePuzzle = (width: number, height: number, minMoveCount: number, tries: number, carLength: number, carCount: number, truckLength: number, truckCount: number) => {
   // Keep a list of all placed vehicles
   let vehicles: VehicleData[] = [];
 
@@ -83,26 +83,36 @@ export const GeneratePuzzle = (width: number, height: number, minMoveCount: numb
     // Reset the list of placed vehicles
     vehicles = [];
 
-    // Generate a random number between 6 and 11
-    let vehicleCount = Math.floor(Math.random() * 6) + 6;
+    // Get the vehicle count
+    let vehicleCount = carCount + truckCount;
 
     // Decide where the red car will be placed
     // Red car always goes in the center or one above the center row
     let red_y = Math.ceil(height / 2) - 1;
     // Red car goes in one of the first three columns
     let red_x = Math.floor(Math.random() * 3);
-    vehicles.push({ id: red_x + ',' + red_y, coordinates: { x: red_x, y: red_y }, orientation: Orientation.Horizontal, length: 2, color: 'red' });
+    vehicles.push({ id: red_x + ',' + red_y, coordinates: { x: red_x, y: red_y }, orientation: Orientation.Horizontal, length: carLength, color: 'red' });
 
     let colors = [...availableColors];
 
+    // Set adjustable truck count
+    let truckCountThisRound = truckCount;
+
     // Now add vehicleCount vehicles to the grid
     Array(vehicleCount).fill(0).forEach(() => {
-      // Get a random vehicle length
-      let vehicleLength: number = Math.floor(Math.random() * 2) + 2;
-      // Get a random vehicle orientation
-      let vehicleOrientation: Orientation = Math.floor(Math.random() * 2);
+      // Set vehicle length to a default of carLength
+      let vehicleLength = carLength;
 
-      // Get a random vehicle color
+      // First generate trucks, if all trucks are generated the vehicle length will stay 2
+      if (truckCountThisRound > 0) {
+        truckCountThisRound--;
+        vehicleLength = truckLength;
+      }
+
+      // Get a random vehicle orientation
+      let vehicleOrientation: Orientation = Math.floor(Math.random() * 2);// Object.keys(Orientation).length);
+
+      // Get a random vehicle color and make sure the color can't be picked again
       let colorIndex = Math.floor(Math.random() * colors.length)
       let vehicleColor: string = colors[colorIndex];
       colors.splice(colorIndex, 1);
@@ -132,7 +142,7 @@ export const GeneratePuzzle = (width: number, height: number, minMoveCount: numb
       vehicles.push({ id: x + ',' + y, coordinates: { x: x, y: y }, orientation: vehicleOrientation, length: vehicleLength, color: vehicleColor });
     });
 
-    tryCount += 1;
+    tryCount++;
     console.log(tryCount);
   } while (SolveBoard(width, height, vehicles).length < minMoveCount && tryCount <= tries)
 
