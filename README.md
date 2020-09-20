@@ -6,6 +6,7 @@ Features:
 - Rush-Hour like game
 - Mouse, keyboard + mouse and touch support
 - Move counter and optimal move count
+- Next piece to move suggestions
 - Level selection
   - Choice of 3 pre-programmed official levels
   - Experimental level generation

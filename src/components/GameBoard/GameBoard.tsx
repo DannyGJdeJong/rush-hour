@@ -18,6 +18,7 @@ type GameBoardProps = {
   initialVehicles: VehicleData[]
   setMoveCount: React.Dispatch<React.SetStateAction<number>>
   setSolveClickHandler: React.Dispatch<React.SetStateAction<() => void>>
+  setHintClickHandler: React.Dispatch<React.SetStateAction<() => void>>
 }
 
 const StyledGrid = styled(Grid)`
@@ -25,7 +26,7 @@ const StyledGrid = styled(Grid)`
   height: 100%;
 `;
 
-const GameBoard: FunctionComponent<GameBoardProps> = ({ width, height, initialVehicles, setMoveCount, setSolveClickHandler }) => {
+const GameBoard: FunctionComponent<GameBoardProps> = ({ width, height, initialVehicles, setMoveCount, setSolveClickHandler, setHintClickHandler }) => {
   const [vehicles, setVehicles] = useState<VehicleData[]>(initialVehicles);
   const [grid, setGrid] = useState<GridCell[][]>(ConstructGrid(width, height, vehicles));
   const [selectedVehicleId, setSelectedVehicleId] = useState<string>(null);
@@ -35,6 +36,11 @@ const GameBoard: FunctionComponent<GameBoardProps> = ({ width, height, initialVe
   // Update solve button click handler whenever a vehicle changes
   useEffect(() => {
     setSolveClickHandler(() => { return startSolving });
+  }, [vehicles]);
+
+  // Update hint button click handler whenever a vehicle changes
+  useEffect(() => {
+    setHintClickHandler(() => { return giveHint });
   }, [vehicles]);
 
   // Update grid whenever a vehicle changes
@@ -132,6 +138,10 @@ const GameBoard: FunctionComponent<GameBoardProps> = ({ width, height, initialVe
   const startSolving = () => {
     console.log("Starting solving")
     setMoves(SolveBoard(width, height, vehicles));
+  }
+
+  const giveHint = () => {
+    setSelectedVehicleId(SolveBoard(width, height, vehicles)[0].vehicle.id)
   }
 
   const handleVehicleClick = (_: React.MouseEvent, id: string) => {

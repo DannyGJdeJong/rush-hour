@@ -51,8 +51,9 @@ const GameContainer: FunctionComponent = () => {
   const [optimalMoveCount, setOptimalMoveCount] = useState<number>();
   const [selectedPuzzle, setSelectedPuzzle] = useState<Puzzle>(HardCodedPuzzles[0]);
 
-  // Solve button click handler that can be set by GameBoard
+  // Solve button handlers that can be set by GameBoard
   const [handleSolveButtonClick, setHandleSolveButtonClick] = useState<() => void>();
+  const [handleHintButtonClick, setHandleHintButtonClick] = useState<() => void>();
 
   // Reset variable
   const [reset, setReset] = useState<boolean>(false);
@@ -107,6 +108,9 @@ const GameContainer: FunctionComponent = () => {
     <StyledDiv>
       <SettingsDiv>
         <p> { moveCount } / { optimalMoveCount } </p>
+        <button onClick={ handleHintButtonClick }>
+          Hint
+        </button>
         <button onClick={ handleSolveButtonClick }>
           Solve
         </button>
@@ -192,7 +196,9 @@ const GameContainer: FunctionComponent = () => {
         height={ selectedPuzzle.height }
         initialVehicles={ selectedPuzzle.vehicles }
         setMoveCount={ setMoveCount }
-        setSolveClickHandler={ setHandleSolveButtonClick }/>
+        setSolveClickHandler={ setHandleSolveButtonClick }
+        setHintClickHandler={ setHandleHintButtonClick }
+      />
     </StyledDiv>
   );
 }
