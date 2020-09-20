@@ -8,7 +8,9 @@
   "scripts": {
     "start": "gatsby develop --host=0.0.0.0",
     "build": "gatsby build",
-    "deploy": "gatsby-plugin-s3 deploy --yes"
+    "deploy": "gatsby-plugin-s3 deploy --yes",
+    "prettier": "prettier --write --ignore-path .gitignore '**/*.{ts,tsx,js,json}'"
+
   },
   "devDependencies": {
     "@types/styled-components": "^5.1.3",
@@ -18,6 +20,7 @@
     "gatsby-plugin-styled-components": "^3.3.11",
     "gatsby-plugin-ts-config": "^1.0.0",
     "gatsby-plugin-typescript": "^2.4.20",
+    "prettier": "^2.1.2",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "styled-components": "^5.2.0",

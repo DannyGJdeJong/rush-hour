@@ -13,20 +13,27 @@ import { VehicleData, GridCell, Direction, Move } from '../../utils/Types';
 import { IsValidPosition, ConstructGrid, MoveVehicle, HasWinningCondition, SolveBoard } from '../../utils/GameLogic';
 
 type GameBoardProps = {
-  width: number
-  height: number
-  initialVehicles: VehicleData[]
-  setMoveCount: React.Dispatch<React.SetStateAction<number>>
-  setSolveClickHandler: React.Dispatch<React.SetStateAction<() => void>>
-  setHintClickHandler: React.Dispatch<React.SetStateAction<() => void>>
-}
+  width: number;
+  height: number;
+  initialVehicles: VehicleData[];
+  setMoveCount: React.Dispatch<React.SetStateAction<number>>;
+  setSolveClickHandler: React.Dispatch<React.SetStateAction<() => void>>;
+  setHintClickHandler: React.Dispatch<React.SetStateAction<() => void>>;
+};
 
 const StyledGrid = styled(Grid)`
   width: 100%;
   height: 100%;
 `;
 
-const GameBoard: FunctionComponent<GameBoardProps> = ({ width, height, initialVehicles, setMoveCount, setSolveClickHandler, setHintClickHandler }) => {
+const GameBoard: FunctionComponent<GameBoardProps> = ({
+  width,
+  height,
+  initialVehicles,
+  setMoveCount,
+  setSolveClickHandler,
+  setHintClickHandler
+}) => {
   const [vehicles, setVehicles] = useState<VehicleData[]>(initialVehicles);
   const [grid, setGrid] = useState<GridCell[][]>(ConstructGrid(width, height, vehicles));
   const [selectedVehicleId, setSelectedVehicleId] = useState<string>(null);
@@ -35,12 +42,16 @@ const GameBoard: FunctionComponent<GameBoardProps> = ({ width, height, initialVe
 
   // Update solve button click handler whenever a vehicle changes
   useEffect(() => {
-    setSolveClickHandler(() => { return startSolving });
+    setSolveClickHandler(() => {
+      return startSolving;
+    });
   }, [vehicles]);
 
   // Update hint button click handler whenever a vehicle changes
   useEffect(() => {
-    setHintClickHandler(() => { return giveHint });
+    setHintClickHandler(() => {
+      return giveHint;
+    });
   }, [vehicles]);
 
   // Update grid whenever a vehicle changes
@@ -50,7 +61,9 @@ const GameBoard: FunctionComponent<GameBoardProps> = ({ width, height, initialVe
 
   // Start moving vehicles when there's moves to be done
   useEffect(() => {
-    if (moves.length == 0) { return; }
+    if (moves.length == 0) {
+      return;
+    }
 
     const moveInterval = setInterval(() => {
       setMoves((moves) => {
@@ -62,7 +75,6 @@ const GameBoard: FunctionComponent<GameBoardProps> = ({ width, height, initialVe
 
     // Clear the interval every time useEffect runs
     return () => clearInterval(moveInterval);
-
   }, [grid, moves]);
 
   // Globally register a keydown handler for handling keyboard input
@@ -89,10 +101,14 @@ const GameBoard: FunctionComponent<GameBoardProps> = ({ width, height, initialVe
     let newVehicle: VehicleData = MoveVehicle(vehicle, direction);
 
     // If nothing changed, don't update vehicles
-    if (JSON.stringify(newVehicle) === JSON.stringify(vehicle)) { return; }
+    if (JSON.stringify(newVehicle) === JSON.stringify(vehicle)) {
+      return;
+    }
 
     // If vehicle position is invalid, return
-    if (!IsValidPosition(grid, newVehicle)) { return; }
+    if (!IsValidPosition(grid, newVehicle)) {
+      return;
+    }
 
     // If the code hasn't returned by now the vehicle must be placeable
     setVehicles((vehicles) => {
@@ -109,40 +125,48 @@ const GameBoard: FunctionComponent<GameBoardProps> = ({ width, height, initialVe
     setMoveCount((moveCount) => {
       return moveCount + 1;
     });
-  }
+  };
 
   const handleKeyDown = (event: KeyboardEvent) => {
     // Ignore repeat keypresses
-    if (event.repeat) { return }
+    if (event.repeat) {
+      return;
+    }
 
     // Ignore keypress when no vehicle is selected
-    if (selectedVehicleId == null) { return }
+    if (selectedVehicleId == null) {
+      return;
+    }
 
     // Adjust the new vehicle's position
-    switch(event.code) {
-      case 'ArrowUp': case 'KeyW':
+    switch (event.code) {
+      case 'ArrowUp':
+      case 'KeyW':
         moveVehicle(selectedVehicleId, Direction.Up);
         break;
-      case 'ArrowLeft': case 'KeyA':
+      case 'ArrowLeft':
+      case 'KeyA':
         moveVehicle(selectedVehicleId, Direction.Left);
         break;
-      case 'ArrowDown': case 'KeyS':
+      case 'ArrowDown':
+      case 'KeyS':
         moveVehicle(selectedVehicleId, Direction.Down);
         break;
-      case 'ArrowRight': case 'KeyD':
+      case 'ArrowRight':
+      case 'KeyD':
         moveVehicle(selectedVehicleId, Direction.Right);
         break;
     }
   };
 
   const startSolving = () => {
-    console.log("Starting solving")
+    console.log('Starting solving');
     setMoves(SolveBoard(width, height, vehicles));
-  }
+  };
 
   const giveHint = () => {
-    setSelectedVehicleId(SolveBoard(width, height, vehicles)[0].vehicle.id)
-  }
+    setSelectedVehicleId(SolveBoard(width, height, vehicles)[0].vehicle.id);
+  };
 
   const handleVehicleClick = (_: React.MouseEvent, id: string) => {
     // Update selected vehicle
@@ -153,16 +177,18 @@ const GameBoard: FunctionComponent<GameBoardProps> = ({ width, height, initialVe
     <>
       <SquareContainer>
         <StyledGrid width={width} height={height}>
-          {
-            vehicles.map(vehicle =>
-              <Vehicle key={ vehicle.id } { ...vehicle } selected={ vehicle.id == selectedVehicleId } onClickCallback={ handleVehicleClick } moveVehicle={ moveVehicle }/>
-            )
-          }
+          {vehicles.map((vehicle) => (
+            <Vehicle
+              key={vehicle.id}
+              {...vehicle}
+              selected={vehicle.id == selectedVehicleId}
+              onClickCallback={handleVehicleClick}
+              moveVehicle={moveVehicle}
+            />
+          ))}
         </StyledGrid>
       </SquareContainer>
-      {
-        won ? <Modal title="Congratulations!" message="You've won!" visible={won}/> : <></>
-      }
+      {won ? <Modal title="Congratulations!" message="You've won!" visible={won} /> : <></>}
     </>
   );
 };

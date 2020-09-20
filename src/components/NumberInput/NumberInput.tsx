@@ -1,9 +1,12 @@
 // Import libraries
 import React, { FunctionComponent, useState } from 'react';
 
-type NumberInputProps = Exclude<React.InputHTMLAttributes<HTMLInputElement>, { type: string, onChange: React.ChangeEventHandler<HTMLInputElement> }> & {
-  onChangeCallback: (value: number) => void
-}
+type NumberInputProps = Exclude<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  { type: string; onChange: React.ChangeEventHandler<HTMLInputElement> }
+> & {
+  onChangeCallback: (value: number) => void;
+};
 
 const NumberInput: FunctionComponent<NumberInputProps> = (props) => {
   const { defaultValue, value, min, max, onChangeCallback } = props;
@@ -25,11 +28,9 @@ const NumberInput: FunctionComponent<NumberInputProps> = (props) => {
     // Set state and call callback function
     setInputState(value);
     onChangeCallback(value);
-  }
+  };
 
-  return (
-    <input { ... props } type="number" value={ inputState } onChange={ handleOnChange }/>
-  );
+  return <input {...props} type="number" value={inputState} onChange={handleOnChange} />;
 };
 
 export default NumberInput;

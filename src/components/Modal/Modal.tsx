@@ -3,24 +3,24 @@ import React, { FunctionComponent, useState } from 'react';
 import styled from 'styled-components';
 
 type ModalProps = {
-  title: string
-  message: string
-  visible: boolean
-}
+  title: string;
+  message: string;
+  visible: boolean;
+};
 
 type BackgroundProps = {
-  visible: boolean
-}
+  visible: boolean;
+};
 
 const Background = styled.div<BackgroundProps>`
-  display: ${({visible}) => visible ? 'block' : 'none'};
+  display: ${({ visible }) => (visible ? 'block' : 'none')};
   position: fixed;
   z-index: 9998;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #000000BF;
+  background-color: #000000bf;
 `;
 
 const DialogBox = styled.div`
@@ -30,19 +30,19 @@ const DialogBox = styled.div`
   margin: auto;
   margin-top: 10%;
   padding: 15px;
-  background-color: #F7F7F7;
+  background-color: #f7f7f7;
 `;
 
 const StyledHeader = styled.h1`
   margin: auto;
 `;
 
-const Modal: FunctionComponent<ModalProps> = ({title, message, visible}) => {
+const Modal: FunctionComponent<ModalProps> = ({ title, message, visible }) => {
   const [isOpen, setIsOpen] = useState<boolean>(visible);
 
   const handleClick = () => {
-    setIsOpen(false)
-  }
+    setIsOpen(false);
+  };
 
   return (
     <Background visible={isOpen} onClick={handleClick}>
@@ -53,6 +53,6 @@ const Modal: FunctionComponent<ModalProps> = ({title, message, visible}) => {
       </DialogBox>
     </Background>
   );
-}
+};
 
 export default Modal;

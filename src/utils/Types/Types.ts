@@ -1,17 +1,17 @@
-export type GridCell = string | null
+export type GridCell = string | null;
 
 export type VehicleData = {
-  id: string
-  coordinates: Coordinates
-  orientation: Orientation
-  length: number
-  color: string
-}
+  id: string;
+  coordinates: Coordinates;
+  orientation: Orientation;
+  length: number;
+  color: string;
+};
 
 export type Coordinates = {
-  x: number
-  y: number
-}
+  x: number;
+  y: number;
+};
 
 export enum Orientation {
   Vertical,
@@ -31,6 +31,6 @@ export enum RelativeDirection {
 }
 
 export type Move = {
-  vehicle: VehicleData
-  direction: Direction
-}
+  vehicle: VehicleData;
+  direction: Direction;
+};

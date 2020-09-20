@@ -16,14 +16,12 @@ const Square = styled.div`
   padding-bottom: 100%;
 `;
 
-const SquareContainer: FunctionComponent = ({children}) => {
+const SquareContainer: FunctionComponent = ({ children }) => {
   return (
     <Square>
-      <Container>
-        { children }
-      </Container>
+      <Container>{children}</Container>
     </Square>
   );
-}
+};
 
 export default SquareContainer;

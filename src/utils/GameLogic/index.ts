@@ -1,1 +1,1 @@
-export * from './GameLogic'
+export * from './GameLogic';

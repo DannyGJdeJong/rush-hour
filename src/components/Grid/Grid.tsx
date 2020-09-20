@@ -2,9 +2,9 @@
 import styled from 'styled-components';
 
 type GridProps = {
-  width: number
-  height: number
-}
+  width: number;
+  height: number;
+};
 
 const Grid = styled.div<GridProps>`
   display: grid;

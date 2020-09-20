@@ -6,8 +6,8 @@ import styled from 'styled-components';
 import { Coordinates, Direction } from '../../utils/Types';
 
 type SwipeableProps = {
-  swipeCallback: (direction: Direction) => void
-}
+  swipeCallback: (direction: Direction) => void;
+};
 
 const StyledDiv = styled.div`
   width: 100%;
@@ -15,7 +15,7 @@ const StyledDiv = styled.div`
   touch-action: none;
 `;
 
-const Swipeable: FunctionComponent<SwipeableProps> = ({children, swipeCallback}) => {
+const Swipeable: FunctionComponent<SwipeableProps> = ({ children, swipeCallback }) => {
   const [dragging, setDragging] = useState<boolean>(false);
   const [startPosition, setStartPosition] = useState<Coordinates>();
 
@@ -23,29 +23,33 @@ const Swipeable: FunctionComponent<SwipeableProps> = ({children, swipeCallback})
   const containerRef = useRef<HTMLDivElement>(null);
 
   const mouseDownHandler = (event: React.MouseEvent) => {
-    let currentPosition: Coordinates = {x: event.pageX, y: event.pageY};
-    setStartPosition(currentPosition)
+    let currentPosition: Coordinates = { x: event.pageX, y: event.pageY };
+    setStartPosition(currentPosition);
     setDragging(true);
-    event.preventDefault()
-  }
+    event.preventDefault();
+  };
 
   const mouseMoveHandler = (event: React.MouseEvent) => {
-    let currentPosition: Coordinates = {x: event.pageX, y: event.pageY};
+    let currentPosition: Coordinates = { x: event.pageX, y: event.pageY };
     // Call the swipeCallback when the element is clicked AND dragged for 0.8 * [grid size] amount of px
     // Here 0.8 is used to counter small errors and make it feel more smooth
-    if (dragging && getDistance(startPosition, currentPosition) > Math.min(containerRef.current.offsetWidth, containerRef.current.offsetHeight) * 0.8) {
-      swipeCallback(getDirection(startPosition, currentPosition))
+    if (
+      dragging &&
+      getDistance(startPosition, currentPosition) >
+        Math.min(containerRef.current.offsetWidth, containerRef.current.offsetHeight) * 0.8
+    ) {
+      swipeCallback(getDirection(startPosition, currentPosition));
       // Reset the startPosition to start dragging again
-      setStartPosition(currentPosition)
+      setStartPosition(currentPosition);
     }
 
-    event.preventDefault()
-  }
+    event.preventDefault();
+  };
 
   const mouseUpHandler = () => {
     // Stop dragging when the mouse is released
     setDragging(false);
-  }
+  };
 
   useEffect(() => {
     // Register keydown handler
@@ -61,39 +65,43 @@ const Swipeable: FunctionComponent<SwipeableProps> = ({children, swipeCallback})
     // Determine the last touch
     let lastTouch = event.changedTouches[0];
     // Retrieve the current touch position
-    let currentPosition: Coordinates = {x: lastTouch.pageX, y: lastTouch.pageY};
+    let currentPosition: Coordinates = { x: lastTouch.pageX, y: lastTouch.pageY };
 
     // (re)set the start position
-    setStartPosition(currentPosition)
+    setStartPosition(currentPosition);
     setDragging(true);
     event.preventDefault();
-  }
+  };
 
   const touchMoveHandler = (event: React.TouchEvent) => {
     // Determine the last touch
     let lastTouch = event.changedTouches[0];
     // Retrieve the current touch position
-    let currentPosition: Coordinates = {x: lastTouch.pageX, y: lastTouch.pageY};
+    let currentPosition: Coordinates = { x: lastTouch.pageX, y: lastTouch.pageY };
 
     // Call the swipeCallback when the element is clicked AND dragged for 0.3 * [grid size] amount of px
     // Here 0.3 is used to counter small errors and make it feel more smooth
-    if (dragging && getDistance(startPosition, currentPosition) > Math.min(containerRef.current.offsetWidth, containerRef.current.offsetHeight) * 0.3) {
-      swipeCallback(getDirection(startPosition, currentPosition))
+    if (
+      dragging &&
+      getDistance(startPosition, currentPosition) >
+        Math.min(containerRef.current.offsetWidth, containerRef.current.offsetHeight) * 0.3
+    ) {
+      swipeCallback(getDirection(startPosition, currentPosition));
       // Reset the startPosition to start dragging again
-      setStartPosition({x: lastTouch.pageX, y: lastTouch.pageY})
+      setStartPosition({ x: lastTouch.pageX, y: lastTouch.pageY });
     }
     event.preventDefault();
-  }
+  };
 
   const touchEndHandler = (event: React.TouchEvent) => {
     // Stop dragging when touch is released
     setDragging(false);
-    event.preventDefault()
-  }
+    event.preventDefault();
+  };
 
   const getDistance = (oldLoc: Coordinates, newLoc: Coordinates): number => {
     return Math.max(Math.abs(newLoc.x - oldLoc.x), Math.abs(newLoc.y - oldLoc.y));
-  }
+  };
 
   const getDirection = (oldLoc: Coordinates, newLoc: Coordinates) => {
     let deltaX = newLoc.x - oldLoc.x;
@@ -104,19 +112,20 @@ const Swipeable: FunctionComponent<SwipeableProps> = ({children, swipeCallback})
     } else {
       return deltaY > 0 ? Direction.Down : Direction.Up;
     }
-  }
+  };
 
   return (
-    <StyledDiv ref={containerRef}
-               onMouseDown={mouseDownHandler}
-               onMouseMove={mouseMoveHandler}
-               onMouseUp={mouseUpHandler}
-               onTouchStart={touchStartHandler}
-               onTouchMove={touchMoveHandler}
-               onTouchEnd={touchEndHandler}>
-      { children }
+    <StyledDiv
+      ref={containerRef}
+      onMouseDown={mouseDownHandler}
+      onMouseMove={mouseMoveHandler}
+      onMouseUp={mouseUpHandler}
+      onTouchStart={touchStartHandler}
+      onTouchMove={touchMoveHandler}
+      onTouchEnd={touchEndHandler}>
+      {children}
     </StyledDiv>
   );
-}
+};
 
 export default Swipeable;

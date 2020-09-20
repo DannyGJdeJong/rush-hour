@@ -1,1 +1,1 @@
-export * from './Puzzles'
+export * from './Puzzles';

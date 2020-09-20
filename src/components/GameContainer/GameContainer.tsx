@@ -77,130 +77,106 @@ const GameContainer: FunctionComponent = () => {
   const onSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedPuzzle(HardCodedPuzzles.find(({ name }) => name === event.target.value));
     setMoveCount(0);
-  }
+  };
 
   // When the reset button is clicked, re-mount GameBoard and reset movecount
   const handleResetButtonClick = () => {
     setReset((reset) => !reset);
     setMoveCount(0);
-  }
+  };
 
   // When the generate button is clicked, generate a random puzzle, re-mount GameBoard and reset movecount
   const handleGenerateButtonClick = () => {
     setSelectedPuzzle({
-      name: "Random",
+      name: 'Random',
       width: generatedPuzzleWidth,
       height: generatedPuzzleHeight,
-      vehicles: GeneratePuzzle(generatedPuzzleWidth,
-                               generatedPuzzleHeight,
-                               generatedPuzzleMinMoves,
-                               generatedPuzzleTries,
-                               generatedPuzzleCarLength,
-                               generatedPuzzleCarCount,
-                               generatedPuzzleTruckLength,
-                               generatedPuzzleTruckCount)
+      vehicles: GeneratePuzzle(
+        generatedPuzzleWidth,
+        generatedPuzzleHeight,
+        generatedPuzzleMinMoves,
+        generatedPuzzleTries,
+        generatedPuzzleCarLength,
+        generatedPuzzleCarCount,
+        generatedPuzzleTruckLength,
+        generatedPuzzleTruckCount
+      )
     });
     setReset((reset) => !reset);
     setMoveCount(0);
-  }
+  };
 
   return (
     <StyledDiv>
       <SettingsDiv>
-        <p> { moveCount } / { optimalMoveCount } </p>
-        <button onClick={ handleHintButtonClick }>
-          Hint
-        </button>
-        <button onClick={ handleSolveButtonClick }>
-          Solve
-        </button>
-        <button onClick={ handleResetButtonClick }>
-          Reset
-        </button>
+        <p>
+          {' '}
+          {moveCount} / {optimalMoveCount}{' '}
+        </p>
+        <button onClick={handleHintButtonClick}>Hint</button>
+        <button onClick={handleSolveButtonClick}>Solve</button>
+        <button onClick={handleResetButtonClick}>Reset</button>
         <hr></hr>
         <p> Select a default level: </p>
-        <select onChange={ onSelectChange } value={ selectedPuzzle.name }>
-          {
-            HardCodedPuzzles.map(({ name }) =>
-              <option key={ name } value={ name }>{ name }</option>
-            )
-          }
+        <select onChange={onSelectChange} value={selectedPuzzle.name}>
+          {HardCodedPuzzles.map(({ name }) => (
+            <option key={name} value={name}>
+              {name}
+            </option>
+          ))}
         </select>
         <hr></hr>
-        <p> Generate a random level (experimental, keep console open for generation progress, may take a long time): </p>
+        <p>
+          {' '}
+          Generate a random level (experimental, keep console open for generation progress, may take a long time):{' '}
+        </p>
         <p> Width: </p>
-        <NumberInput
-          min={ 5 }
-          max={ 10 }
-          value={ generatedPuzzleWidth }
-          onChangeCallback={ setGeneratedPuzzleWidth }
-        />
+        <NumberInput min={5} max={10} value={generatedPuzzleWidth} onChangeCallback={setGeneratedPuzzleWidth} />
         <p> Height: </p>
-        <NumberInput
-          min={ 5 }
-          max={ 10 }
-          value={ generatedPuzzleHeight }
-          onChangeCallback={ setGeneratedPuzzleHeight }
-        />
+        <NumberInput min={5} max={10} value={generatedPuzzleHeight} onChangeCallback={setGeneratedPuzzleHeight} />
         <p> Car length: </p>
         <NumberInput
-          min={ 1 }
+          min={1}
           // Makes sure the red car can still be placed since it'll be at most in x = 2
-          max={ Math.min(generatedPuzzleWidth, generatedPuzzleHeight) - 2 }
-          value={ generatedPuzzleCarLength } onChangeCallback={ setGeneratedPuzzleCarLength }
+          max={Math.min(generatedPuzzleWidth, generatedPuzzleHeight) - 2}
+          value={generatedPuzzleCarLength}
+          onChangeCallback={setGeneratedPuzzleCarLength}
         />
         <p> Car count: </p>
-        <NumberInput
-          min={ 0 }
-          max={ 10 }
-          value={ generatedPuzzleCarCount }
-          onChangeCallback={ setGeneratedPuzzleCarCount }
-        />
+        <NumberInput min={0} max={10} value={generatedPuzzleCarCount} onChangeCallback={setGeneratedPuzzleCarCount} />
         <p> Truck length: </p>
         <NumberInput
-          min={ 1 }
+          min={1}
           // Makes sure the truck can still move at least one tile
-          max={ Math.min(generatedPuzzleWidth, generatedPuzzleHeight) - 1 }
-          value={ generatedPuzzleTruckLength }
-          onChangeCallback={ setGeneratedPuzzleTruckLength }
+          max={Math.min(generatedPuzzleWidth, generatedPuzzleHeight) - 1}
+          value={generatedPuzzleTruckLength}
+          onChangeCallback={setGeneratedPuzzleTruckLength}
         />
         <p> Truck count: </p>
         <NumberInput
-          min={ 0 }
-          max={ 10 }
-          value={ generatedPuzzleTruckCount }
-          onChangeCallback={ setGeneratedPuzzleTruckCount }
+          min={0}
+          max={10}
+          value={generatedPuzzleTruckCount}
+          onChangeCallback={setGeneratedPuzzleTruckCount}
         />
         <p> Minimum moves to solve: </p>
-        <NumberInput
-          min={ 1 }
-          max={ 100 }
-          value={ generatedPuzzleMinMoves }
-          onChangeCallback={ setGeneratedPuzzleMinMoves }
-        />
+        <NumberInput min={1} max={100} value={generatedPuzzleMinMoves} onChangeCallback={setGeneratedPuzzleMinMoves} />
         <p> Amount of times to try generating a puzzle before giving up: </p>
-        <NumberInput
-          min={ 1 }
-          max={ 1000 }
-          value={ generatedPuzzleTries }
-          onChangeCallback={ setGeneratedPuzzleTries }
-        />
+        <NumberInput min={1} max={1000} value={generatedPuzzleTries} onChangeCallback={setGeneratedPuzzleTries} />
         <p></p>
-        <button onClick={ handleGenerateButtonClick }>
-          Generate
-        </button>
+        <button onClick={handleGenerateButtonClick}>Generate</button>
       </SettingsDiv>
       <StyledGameBoard
-        key={ selectedPuzzle.name + reset } // Force re-mount on selectedPuzzle change
-        width={ selectedPuzzle.width }
-        height={ selectedPuzzle.height }
-        initialVehicles={ selectedPuzzle.vehicles }
-        setMoveCount={ setMoveCount }
-        setSolveClickHandler={ setHandleSolveButtonClick }
-        setHintClickHandler={ setHandleHintButtonClick }
+        key={selectedPuzzle.name + reset} // Force re-mount on selectedPuzzle change
+        width={selectedPuzzle.width}
+        height={selectedPuzzle.height}
+        initialVehicles={selectedPuzzle.vehicles}
+        setMoveCount={setMoveCount}
+        setSolveClickHandler={setHandleSolveButtonClick}
+        setHintClickHandler={setHandleHintButtonClick}
       />
     </StyledDiv>
   );
-}
+};
 
 export default GameContainer;

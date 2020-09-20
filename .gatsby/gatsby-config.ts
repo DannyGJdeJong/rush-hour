@@ -7,7 +7,7 @@ const config: GatsbyConfig = {
     {
       resolve: 'gatsby-plugin-s3',
       options: {
-        bucketName: 'rush-hour.denni.dev',
+        bucketName: 'rush-hour.denni.dev'
       }
     },
     {
@@ -15,7 +15,7 @@ const config: GatsbyConfig = {
       options: {
         component: require.resolve('../src/components/Layout/Layout.tsx')
       }
-    },
+    }
   ]
 };
 

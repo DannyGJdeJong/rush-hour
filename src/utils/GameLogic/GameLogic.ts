@@ -6,7 +6,7 @@ export const SolveBoard = (width: number, height: number, vehicles: VehicleData[
   let visitedGrids = new Set();
 
   // Keep track of all game states
-  let queue: { moves: Move[], vehicles: VehicleData[] }[] = [{ moves: [], vehicles: vehicles }]
+  let queue: { moves: Move[]; vehicles: VehicleData[] }[] = [{ moves: [], vehicles: vehicles }];
 
   while (queue.length > 0) {
     const { moves, vehicles } = queue.shift();
@@ -27,29 +27,35 @@ export const SolveBoard = (width: number, height: number, vehicles: VehicleData[
     });
   }
 
-  console.log("No winning condition could be found for this game");
+  console.log('No winning condition could be found for this game');
   return [];
-}
+};
 
 export const HasWinningCondition = (width: number, height: number, vehicles: VehicleData[]): boolean => {
   // Find the objective vehicle, marked by its color, red
   // This assumes there's just a single red car at all times
-  let redVehicle = vehicles.find(vehicle => vehicle.color === 'red');
+  let redVehicle = vehicles.find((vehicle) => vehicle.color === 'red');
 
   // Determine whether the red car is in a winning position
   // This assumes the winning position is either on the right or at the bottom of the grid
   // The latter should never occur in a normal game of rush-hour, but it's possible to still win if the car is somehow rotated
-  if ((redVehicle.orientation == Orientation.Horizontal && redVehicle.coordinates.x == width - redVehicle.length) ||
-      (redVehicle.orientation == Orientation.Vertical   && redVehicle.coordinates.y == height - redVehicle.length)) {
+  if (
+    (redVehicle.orientation == Orientation.Horizontal && redVehicle.coordinates.x == width - redVehicle.length) ||
+    (redVehicle.orientation == Orientation.Vertical && redVehicle.coordinates.y == height - redVehicle.length)
+  ) {
     return true;
   }
 
   return false;
-}
+};
 
-const GetAllGameStates = (width: number, height: number, vehicles: VehicleData[]): { move: Move, vehicles: VehicleData[] }[] => {
+const GetAllGameStates = (
+  width: number,
+  height: number,
+  vehicles: VehicleData[]
+): { move: Move; vehicles: VehicleData[] }[] => {
   // Declare a return variable
-  let retval: { move: Move, vehicles: VehicleData[] }[] = [];
+  let retval: { move: Move; vehicles: VehicleData[] }[] = [];
 
   // Calculate grid for current game state
   let grid = ConstructGrid(width, height, vehicles);
@@ -84,14 +90,14 @@ const GetAllGameStates = (width: number, height: number, vehicles: VehicleData[]
         });
 
         // Add the move and updated game state to the return value
-        retval.push({ move: { vehicle: vehicle, direction: direction }, vehicles: newVehicles })
+        retval.push({ move: { vehicle: vehicle, direction: direction }, vehicles: newVehicles });
       }
     });
   });
 
   // Finally return all possible game states that can be made from the current game state
-  return retval
-}
+  return retval;
+};
 
 export const IsValidPosition = (grid: GridCell[][], vehicle: VehicleData): boolean => {
   let gridWidth = grid[0].length;
@@ -102,7 +108,7 @@ export const IsValidPosition = (grid: GridCell[][], vehicle: VehicleData): boole
   // Loop through vehicle coordinates
   GetVehicleCoordinates(vehicle).forEach(({ x, y }) => {
     // Check if placement is out of bounds
-    if ( x < 0 || y < 0 || x >= gridWidth || y >= gridHeight) {
+    if (x < 0 || y < 0 || x >= gridWidth || y >= gridHeight) {
       isValid = false;
       // Break out of the loop
       return;
@@ -117,9 +123,9 @@ export const IsValidPosition = (grid: GridCell[][], vehicle: VehicleData): boole
   });
 
   return isValid;
-}
+};
 
-const GetVehicleCoordinates = ({ coordinates, orientation, length }: VehicleData): Coordinates[]  => {
+const GetVehicleCoordinates = ({ coordinates, orientation, length }: VehicleData): Coordinates[] => {
   // Loop through a range from 0 to length
   let allCoordinates: Coordinates[] = [...Array(length).keys()].map((i) => {
     let _x = coordinates.x;
@@ -135,18 +141,18 @@ const GetVehicleCoordinates = ({ coordinates, orientation, length }: VehicleData
         break;
     }
 
-    return { x: _x, y: _y }
+    return { x: _x, y: _y };
   });
 
   return allCoordinates;
-}
+};
 
 export const MoveVehicle = (vehicle: VehicleData, direction: Direction) => {
   // Create a temporary new vehicle
   let newVehicle: VehicleData = JSON.parse(JSON.stringify(vehicle));
 
   // Adjust the new vehicle's position
-  switch(direction) {
+  switch (direction) {
     case Direction.Up:
       if (newVehicle.orientation == Orientation.Vertical) {
         newVehicle.coordinates.y -= 1;
@@ -171,10 +177,12 @@ export const MoveVehicle = (vehicle: VehicleData, direction: Direction) => {
   }
 
   return newVehicle;
-}
+};
 
 export const ConstructGrid = (width: number, height: number, vehicles: VehicleData[]) => {
-  let grid: GridCell[][] = Array(height).fill(null).map(() => Array(width).fill(null));
+  let grid: GridCell[][] = Array(height)
+    .fill(null)
+    .map(() => Array(width).fill(null));
 
   // For each vehicle, reserve the squares it occupies
   vehicles.forEach((vehicle) => {
@@ -191,4 +199,4 @@ export const ConstructGrid = (width: number, height: number, vehicles: VehicleDa
   });
 
   return grid;
-}
+};

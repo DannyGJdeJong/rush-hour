@@ -2,12 +2,10 @@
 import React, { FunctionComponent } from 'react';
 
 // Import components
-import GameContainer from '../components/GameContainer'
+import GameContainer from '../components/GameContainer';
 
 const Home: FunctionComponent = () => {
-  return (
-    <GameContainer />
-  );
-}
+  return <GameContainer />;
+};
 
 export default Home;
