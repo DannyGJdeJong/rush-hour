@@ -1,3 +1,4 @@
+// Import libraries
 import styled from 'styled-components';
 
 type GridProps = {

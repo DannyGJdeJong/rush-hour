@@ -1,5 +1,6 @@
-import { Orientation, VehicleData, Coordinates } from "../Types";
+// Import utils
 import { ConstructGrid, IsValidPosition, SolveBoard } from '../GameLogic';
+import { Orientation, VehicleData, Coordinates } from "../Types";
 
 export type Puzzle = {
   name: string

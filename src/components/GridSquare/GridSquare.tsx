@@ -1,5 +1,7 @@
+// Import libraries
 import styled from 'styled-components';
 
+// Import utils
 import { Coordinates } from '../../utils/Types';
 
 const GridSquare = styled.div<Coordinates>`

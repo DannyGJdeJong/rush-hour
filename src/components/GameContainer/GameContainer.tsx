@@ -10,7 +10,6 @@ import GameBoard from '../GameBoard';
 import { Puzzle, HardCodedPuzzles, GeneratePuzzle } from '../../utils/Puzzles';
 import { SolveBoard } from '../../utils/GameLogic';
 
-
 const StyledDiv = styled.div`
   display: grid;
   width: 100%;

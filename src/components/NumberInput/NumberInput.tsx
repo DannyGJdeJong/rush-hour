@@ -1,3 +1,4 @@
+// Import libraries
 import React, { FunctionComponent, useState } from 'react';
 
 type NumberInputProps = Exclude<React.InputHTMLAttributes<HTMLInputElement>, { type: string, onChange: React.ChangeEventHandler<HTMLInputElement> }> & {

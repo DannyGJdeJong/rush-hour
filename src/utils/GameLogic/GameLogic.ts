@@ -1,3 +1,4 @@
+// Import utils
 import { GridCell, VehicleData, Orientation, Coordinates, Direction, Move } from '../Types';
 
 export const SolveBoard = (width: number, height: number, vehicles: VehicleData[]): Move[] => {

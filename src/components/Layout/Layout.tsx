@@ -1,3 +1,4 @@
+// Import libraries
 import React, { FunctionComponent } from 'react';
 import { createGlobalStyle } from 'styled-components';
 

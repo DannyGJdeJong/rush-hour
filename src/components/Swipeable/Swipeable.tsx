@@ -1,6 +1,8 @@
+// Import libraries
 import React, { FunctionComponent, useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 
+// Import utils
 import { Coordinates, Direction } from '../../utils/Types';
 
 type SwipeableProps = {

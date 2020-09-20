@@ -1,9 +1,12 @@
+// Import libraries
 import React, { FunctionComponent } from 'react';
 import styled from 'styled-components';
 
+// Import components
 import GridSquare from '../GridSquare';
 import Swipeable from '../Swipeable';
 
+// Import utils
 import { VehicleData, Orientation, Direction } from '../../utils/Types';
 
 type VehicleProps = VehicleData & {
